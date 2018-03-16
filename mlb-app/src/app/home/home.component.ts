@@ -1,4 +1,10 @@
 import { Component, OnInit } from '@angular/core';
+import { MlbGameService } from '../mlb-game.service';
+
+import 'rxjs/add/operator/switchMap';
+import { Observable } from 'rxjs/Observable';
+
+import { GamesOfDay } from '../models/games-of-day';
 
 @Component({
   selector: 'app-home',
@@ -7,41 +13,21 @@ import { Component, OnInit } from '@angular/core';
 })
 export class HomeComponent implements OnInit {
   date: Date = new Date();
-  mlbAPIUrl = 'http://gd2.mlb.com/components/game/mlb/';
+  gamesOfDay: GamesOfDay;
 
-
-  constructor() { }
+  constructor(private mlbService: MlbGameService) { }
 
   ngOnInit() {
 
   }
 
+  /**
+   * Fetches all games for User entered date from mlb api
+   */
   onSubmit() {
-    console.log("Day: " + this.date.getDate() + " Month: " + this.date.getUTCMonth() + " Year: " + this.date.getFullYear());
-    const req = new XMLHttpRequest();
-    if(!req) {
-      throw 'Unable to create HttpRequest.';
-    }
-    const year = this.date.getFullYear();
-    const month = this.date.getMonth() + 1; // zero based month index
-    const day = this.date.getDate();
-    let url = this.mlbAPIUrl;
-    url += 'year_' + year
-        + '/month_' + ((month < 10) ? '0' + month : month)
-        + '/day_' + ((day < 10) ? '0' + day : day)
-        + '/master_scoreboard.json';
-    console.log(url);
-    req.onreadystatechange = function() {
-      if ( this.readyState === 4) {
-        if ( this.status === 200) {
-          const response = JSON.parse(this.responseText);
-          console.log(response);
-          //createScoreboard(document.getElementById('scoreboard'), response);
-        }
-      }
-    };
-    req.open('GET', url);
-    req.send();
+    this.mlbService.getGamesForDate(this.date)
+      .subscribe(gamesResponse => {
+        this.gamesOfDay = gamesResponse;
+      });
   }
-
 }

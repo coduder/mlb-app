@@ -1,3 +1,17 @@
-<p>
-  gameday-summary works!
-</p>
+<div class="container">
+    <h1>&lt; {{date.toDateString()}} &gt;</h1>
+    <ng-container *ngIf="!games.games">
+        <p>No games today</p>
+    </ng-container>
+    <ng-container *ngIf="!showDetails; else detailsView">
+        <div class="indv-game" *ngFor="let game of games.games; let i = index" (click)="showGameDetails(game)">
+            <p [ngClass]="{'team-winner' : game.winner === 'h'}">{{game.homeTeamName}}</p>
+            <p [ngClass]="{'team-winner' : game.winner === 'a'}">{{game.awayTeamName}}</p>
+            <p>{{game.status}}</p>
+        </div>
+    </ng-container>
+    <ng-template #detailsView>
+        <app-gameday-detail [boxscore]="boxscore"></app-gameday-detail>
+    </ng-template>
+
+</div>
